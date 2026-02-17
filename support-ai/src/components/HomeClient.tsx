@@ -11,24 +11,20 @@ function HomeClient({ email }: { email: string }) {
   const firstLetter = email ? email[0].toUpperCase() : "";
   const [open, setOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
-  const handler = (e: MouseEvent) => {
-    if (
-      popupRef.current &&
-      !popupRef.current.contains(e.target as Node)
-    ) {
-      setOpen(false);
-    }
-  };
+    const handler = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
 
-  document.addEventListener("mousedown", handler);
+    document.addEventListener("mousedown", handler);
 
-  return () => {
-    document.removeEventListener("mousedown", handler);
-  };
-}, []);
-
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
@@ -85,6 +81,51 @@ function HomeClient({ email }: { email: string }) {
           )}
         </div>
       </motion.div>
+
+      <section className="pt-36 pb-28 px-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
+              AI Customer Support <br />
+              Built for Modern Websites
+            </h1>
+            <p className="mt-6 text-lg text-zinc-600 max-w-xl">
+              Add a powerful AI chatbot to your website in minutes. Let your
+              customers get instant answers using your own business knowledge.
+            </p>
+
+            <div className="mt-10 flex gap-4">
+              {email ? (
+                <button
+                  className="px-7 py-3 rounded-xl bg-black text-white font-medium 
+             hover:bg-zinc-800 transition disabled:opacity-60
+            "
+                >
+                  Get to Dashboard
+                </button>
+              ) : (
+                <button
+                  className="px-7 py-3 rounded-xl bg-black text-white font-medium 
+             hover:bg-zinc-800 transition disabled:opacity-60
+            "
+                  onClick={handleLogin}
+                >
+                  Get Started
+                </button>
+              )}
+
+              <button className="px-7 py-3 rounded-xl border border-zinc-700 hover:bg-zinc-100 transition">
+                Learn More
+              </button>
+            </div>
+          </motion.div>
+          <div></div>
+        </div>
+      </section>
     </div>
   );
 }
