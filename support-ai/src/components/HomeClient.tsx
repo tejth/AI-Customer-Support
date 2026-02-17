@@ -1,9 +1,10 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { title } from "process";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
 
 function HomeClient({ email }: { email: string }) {
   const handleLogin = () => {
@@ -52,6 +53,8 @@ function HomeClient({ email }: { email: string }) {
     }
   };
 
+  const navigate = useRouter()
+
   return (
     <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
       <motion.div
@@ -87,7 +90,7 @@ function HomeClient({ email }: { email: string }) {
                     className="absolute right-0 mt-3 w-44 bg-white
                rounded-xl shadow-xl border border-zinc-200 overflow-hidden"
                   >
-                    <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100">
+                    <button onClick={()=>navigate.push("/dashboard")} className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100">
                       Dashboard
                     </button>
                     <button
@@ -130,11 +133,12 @@ function HomeClient({ email }: { email: string }) {
             <div className="mt-10 flex gap-4">
               {email ? (
                 <button
+                   onClick={()=>navigate.push("/dashboard")}
                   className="px-7 py-3 rounded-xl bg-black text-white font-medium 
              hover:bg-zinc-800 transition disabled:opacity-60
             "
                 >
-                  Get to Dashboard
+                  Go to Dashboard
                 </button>
               ) : (
                 <button
