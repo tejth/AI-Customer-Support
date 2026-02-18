@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 
 
 function HomeClient({ email }: { email: string }) {
+  
+  const [loading,setLoading] = useState(false)
+ 
+
   const handleLogin = () => {
+    setLoading(true)
     window.location.href = "/api/auth/login";
   };
 
@@ -107,8 +112,9 @@ function HomeClient({ email }: { email: string }) {
             <button
               className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex items-center gap-2"
               onClick={handleLogin}
+              disabled={loading}
             >
-              Login
+              {loading?"Loading...":"Login"}
             </button>
           )}
         </div>
