@@ -70,10 +70,9 @@ ANSWER:
       contents: prompt,
     });
 
-    return NextResponse.json(
-      { reply: result.text },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json(result.text, {
+     headers: corsHeaders
+    });
 
   } catch (error) {
     return NextResponse.json(
