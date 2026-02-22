@@ -3,23 +3,37 @@ import Settings from "@/src/model/settings.model";
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { message, ownerId } = await req.json();
+
     if (!message || !ownerId) {
       return NextResponse.json(
-        {
-          message: "Message and OwnerId Required!",
-        },
-        { status: 400 },
+        { message: "Message and OwnerId Required!" },
+        { status: 400, headers: corsHeaders }
       );
     }
+
     await connectDb();
     const setting = await Settings.findOne({ ownerId });
+
     if (!setting) {
       return NextResponse.json(
-        { message: "chat bot is not configured yet!" },
-        { status: 400 },
+        { message: "Chat bot is not configured yet!" },
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -30,70 +44,41 @@ export async function POST(req: NextRequest) {
     `;
 
     const prompt = `
-     You are a professional customer support assistant for this business.
+You are a professional customer support assistant for this business.
 
-     Use ONLY the information provided below to answer the customer's question.
-     You may rephrase, summarize, or interpret the information if needed.
-     Do NOT invent new policies, prices, or promises.
+Use ONLY the information provided below to answer the customer's question.
+Do NOT invent new policies, prices, or promises.
 
-     If the customer's question is completely unrelated to the information, 
-     or cannot be reasonably answered from it, reply exactly with:
-     "Please contact support.'
+If unrelated, reply exactly with:
+"Please contact support."
 
-     --------------------
-     BUSINESS INFORMATION
-     --------------------
-     ${KNOWLEDGE}
+BUSINESS INFO:
+${KNOWLEDGE}
 
-     -------------------
-     CUSTOMER QUESTION
-     -------------------
-     ${message}
-    
-     -------------------
-     ANSWER
-     -------------------
-    `;
+CUSTOMER QUESTION:
+${message}
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const res = await ai.models.generateContent({
+ANSWER:
+`;
+
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+
+    const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
     });
 
-    const response = NextResponse.json(res.text);
-
-    response.headers.set("Access-Control-Allow-Origin", "*");
-
-    response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type");
-
-    return response;
-  } catch (error) {
-    const response = NextResponse.json(
-      { message: `chat Error ${error}` },
-      { status: 500 },
+    return NextResponse.json(
+      { reply: result.text },
+      { headers: corsHeaders }
     );
-    response.headers.set("Access-Control-Allow-Origin", "*");
 
-    response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type");
-
-    return response;
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Chat Error" },
+      { status: 500, headers: corsHeaders }
+    );
   }
-}
-
-
-export  const OPTIONS = async()=>{
-  return NextResponse.json(null,{
-        status:201,
-        headers:{
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "POST, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type"
-
-        }
-  })
 }
